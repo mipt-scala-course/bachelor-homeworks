@@ -1,3 +1,8 @@
-*.class
-*.log
-.idea/*
+target
+*.iml
+/.idea
+/tmp
+.bowerrc
+bower_components
+.bsp/
+.env
