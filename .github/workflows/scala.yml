@@ -20,4 +20,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Formatting
-        run: sbt scalafmtSbtCheck scalafmtCheck test:scalafmtCheck
+        run: sbt scalafmtCheck test:scalafmtCheck

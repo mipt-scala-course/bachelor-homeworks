@@ -2,8 +2,7 @@ package mipt.utils
 
 object Homeworks {
 
-  final case class TaskNotDone(num: String, text: String)
-    extends RuntimeException(s"выполните задание $num : \n $text")
+  final case class TaskNotDone(num: String, text: String) extends RuntimeException(s"выполните задание $num : \n $text")
 
   trait TaskDef {
     def applySeq(num: Seq[Int]): Nothing
