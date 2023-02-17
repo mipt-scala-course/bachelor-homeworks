@@ -16,6 +16,7 @@ scalacOptions := List(
   "-Ymacro-annotations"
 )
 
-libraryDependencies += "org.scalatest"  %% "scalatest"  % "3.2.0" % "test"
+libraryDependencies += "org.scalatest"      %% "scalatest"        % "3.2.0"     % "test"
+libraryDependencies += "org.scalatestplus"  %% "scalacheck-1-17"  % "3.2.15.0"  % "test"
 
 wartremoverErrors ++= Seq[Wart](Any, AsInstanceOf, Null, Return, Throw, While, MutableDataStructures)
