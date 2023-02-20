@@ -34,22 +34,22 @@ object task2_finite_equivalences {
    * что бы для инициализированного ими Equivalent выполнялись условия эквивалентности
    */
 
-  def boolToThree: Equivalent[Boolean => Ternary, (Ternary, Ternary)] = ???
   task"определите эквивалентность экспоненты в булевый тип и произведения 3 ^ 2 = 3 * 3 "
+  def boolToThree: Equivalent[Boolean => Ternary, (Ternary, Ternary)] = ???
 
-  def threeToBool: Equivalent[Ternary => Boolean, (Boolean, Boolean, Boolean)] = ???
   task"определите эквивалентность экспоненты в тернарный тип и произведения 2 ^ 3 = 2 * 2 * 2"
+  def threeToBool: Equivalent[Ternary => Boolean, (Boolean, Boolean, Boolean)] = ???
 
-  def boolToBoolToBool: Equivalent[Boolean => Boolean => Boolean, (Boolean => Boolean) => Boolean] = ???
   task"определите эквивалентность двух экпонент высшего порядка булевых типов (2 ^ 2) ^ 2 = 2 ^ (2 ^ 2)"
+  def boolToBoolToBool: Equivalent[Boolean => Boolean => Boolean, (Boolean => Boolean) => Boolean] = ???
 
-  def AToUnit[A]: Equivalent[A => Unit, Unit] = ???
   task"докажите тривиальное качество терминального типа Unit 1 ^ A = 1"
+  def AToUnit[A]: Equivalent[A => Unit, Unit] = ???
 
-  def unitToA[A]: Equivalent[Unit => A, A] = ???
   task"докажите тривиальность экспоненты с единичным показателем A ^ 1 = A"
+  def unitToA[A]: Equivalent[Unit => A, A] = ???
 
-  def patternMatching[A, B, C]: Equivalent[(A Either B) => C, (A => C, B => C)] = ???
   task"докажите фундаментальное качество паттерн-матчинга C ^ (A + B) = C ^ A * C ^ B"
+  def patternMatching[A, B, C]: Equivalent[(A Either B) => C, (A => C, B => C)] = ???
 
 }
