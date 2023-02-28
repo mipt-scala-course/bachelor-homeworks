@@ -40,7 +40,7 @@ object task2_finite_equivalences {
   task"определите эквивалентность экспоненты в тернарный тип и произведения 2 ^ 3 = 2 * 2 * 2"
   def threeToBool: Equivalent[Ternary => Boolean, (Boolean, Boolean, Boolean)] = ???
 
-  task"определите эквивалентность двух экпонент высшего порядка булевых типов (2 ^ 2) ^ 2 = 2 ^ (2 ^ 2)"
+  task"определите эквивалентность двух экспонент высшего порядка булевых типов (2 ^ 2) ^ 2 = 2 ^ (2 ^ 2)"
   def boolToBoolToBool: Equivalent[Boolean => Boolean => Boolean, (Boolean => Boolean) => Boolean] = ???
 
   task"докажите тривиальное качество терминального типа Unit 1 ^ A = 1"
