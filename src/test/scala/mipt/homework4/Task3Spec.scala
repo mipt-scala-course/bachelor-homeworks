@@ -60,7 +60,7 @@ class Task3Spec extends AnyFlatSpec with Matchers {
 
 object TestStx {
   implicit class IntTestStx(val i: Int) extends AnyVal {
-    def n: Num = nOpt.get
+    def n: Num            = nOpt.get
     def nOpt: Option[Num] = Num.fromInt(i)
   }
 }

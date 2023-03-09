@@ -17,9 +17,8 @@ class Task1Spec extends AnyFlatSpec with Matchers {
   }
 
   "flatMap" should "work lazy and return a new stream" in {
-    fibonacci.flatMap { a =>
-      MyStream(a, MyStream(a, MyStream(a, Empty)))
-    }.take(15) shouldBe List(0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3)
+    fibonacci.flatMap { a => MyStream(a, MyStream(a, MyStream(a, Empty))) }.take(15) shouldBe List(0, 0, 0, 1, 1, 1, 1,
+      1, 1, 2, 2, 2, 3, 3, 3)
   }
 
   // Бесконечная последовательность чисел Фибоначчи
