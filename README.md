@@ -1,9 +1,9 @@
 # Постановка задачи
 
-Задание предназначено для освоения темы ленивых вычислений в Scala и работы с ленивым списком. Нужно выполнить задачи в исходных файлах:
-* [Task1](src/main/scala/mipt/homework4/Task1.scala) - реализовать недостающие методы кастомного ленивого списка
-* [Task2](src/main/scala/mipt/homework4/Task2.scala) - реализовать последовательности и обход ленивого дерева
-* [Task3](src/main/scala/mipt/homework4/Task3.scala) - реализовать работу с числами Пеано
+Задание предназначено для освоения темы implicits в Scala. Нужно выполнить задачи в исходных файлах:
+* [Field](src/main/scala/mipt/homework5/Field.scala) - реализовать тайпкласс Field в файле Field.scala и методы, инстансы и синтаксис в объекте компаньоне
+* [Polynom](src/main/scala/mipt/homework5/Polynom.scala) - реализовать структуру данных Polynom в файле Polynom.scala и его методы
+* [VectorSpace](src/main/scala/mipt/homework5/VectorSpace.scala) - реализовать тайпкласс VectorSpace в файле VectorSpace.scala и методы, инстансы и синтаксис в объекте компаньоне
 
 # Подготовка к выполнению домашнего задания
 
