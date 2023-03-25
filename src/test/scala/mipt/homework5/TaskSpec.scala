@@ -23,7 +23,7 @@ class TaskSpec extends AnyFlatSpec with Matchers {
     implicit val pfield: Field[Int] = Field.pField(7)
 
     Polynom.from(3, 2, 1) minus Polynom.from(2, 1, 0) should be(
-      Polynom.from(1, 1, 0)
+      Polynom.from(1, 1, 1)
     )
 
     Polynom.from(1, 1, 0) minus Polynom.from(2, 1, 0) should be(
