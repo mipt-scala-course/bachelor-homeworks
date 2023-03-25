@@ -41,7 +41,7 @@ object VectorSpace {
   implicit def funcInstance[X, F](implicit F: Field[F]): VectorSpace[X => F, F] = ???
 
   /**
-  Есть вектроное пространство V над полем F
+  Есть векторное пространство V над полем F
     Построить вектроное пространство (V, V) (декартово произвдение) над полем F
    */
   implicit def pairInstance[V, F](implicit space: VectorSpace[V, F]): VectorSpace[(V, V), F] = ???
