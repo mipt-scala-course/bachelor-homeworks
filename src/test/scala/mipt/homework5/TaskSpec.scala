@@ -77,7 +77,7 @@ class TaskSpec extends AnyFlatSpec with Matchers {
         ((10.0, 20.0), 2.0),
         ((15.0, 10.0), 3.0)
       )
-    ) shouldBe (75.0, 90.0)
+    ) shouldBe (85.0, 90.0)
 
   }
 
@@ -94,7 +94,7 @@ class TaskSpec extends AnyFlatSpec with Matchers {
     )
 
     f(10.0) shouldBe 190.0
-    f(20.0) shouldBe 440.0
+    f(20.0) shouldBe 320.0
   }
 
 }

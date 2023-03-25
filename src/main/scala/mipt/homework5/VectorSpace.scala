@@ -16,7 +16,7 @@ package mipt.homework5
     5) forall a: F, u, v: V => a(u + v) = au + av
     6) forall a, b: F, v: V => (a + b)v = av + bv
  */
-trait VectorSpace[V, F] extends Field[F] {
+trait VectorSpace[V, F] {
   // названия методов могут выбраны произвольно
   //  def empty
   //  def addV
