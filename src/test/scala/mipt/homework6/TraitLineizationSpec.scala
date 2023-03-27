@@ -3,6 +3,7 @@ package mipt.homework6
 import TraitLineization._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
 class TraitLineizationSpec extends AnyFlatSpec with Matchers {
 
   "resolveMethod" should "correctly resolve method for multi-trait extension chain" in {
@@ -21,17 +22,25 @@ class TraitLineizationSpec extends AnyFlatSpec with Matchers {
       parents = List(traitDefA),
       methods = Map("foo" -> "println kek")
     )
-    val traitDef = TraitDef(
+
+    val traitDefFin1 = TraitDef(
       parents = List(
         traitDefB,
         traitDefC,
         traitDefA
       ),
-      methods = Map("bar" -> "bar")
+      methods = Map.empty
+    )
+    val traitDefFin2 = TraitDef(
+      parents = List(
+        traitDefA,
+        traitDefB
+      ),
+      methods = Map.empty
     )
 
-    resolveMethod(traitDef, "foo") shouldBe Some("println lol")
-    resolveMethod(traitDef, "bar") shouldBe Some("bar")
+    resolveMethod(traitDefFin1, "foo") shouldBe Some("println lol")
+    resolveMethod(traitDefFin2, "foo") shouldBe Some("println lol")
 
   }
 
