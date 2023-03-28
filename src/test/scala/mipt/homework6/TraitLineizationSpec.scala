@@ -39,7 +39,7 @@ class TraitLineizationSpec extends AnyFlatSpec with Matchers {
       methods = Map.empty
     )
 
-    resolveMethod(traitDefFin1, "foo") shouldBe Some("println lol")
+    resolveMethod(traitDefFin1, "foo") shouldBe Some("println kek")
     resolveMethod(traitDefFin2, "foo") shouldBe Some("println lol")
 
   }
