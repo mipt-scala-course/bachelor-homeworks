@@ -13,7 +13,7 @@ object Auxiliary {
                 override def combine(left: Unit, right: Unit): Unit = ()
             }
 
-        def apply[A](implicit inst: Semigroup[Unit]): Semigroup[Unit] = inst
+        def apply[A](implicit inst: Semigroup[A]): Semigroup[A] = inst
     }
 
     // Odeum
