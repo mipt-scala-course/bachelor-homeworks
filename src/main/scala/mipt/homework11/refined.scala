@@ -2,7 +2,7 @@ package mipt.homework11
 
 import mipt.utils.Homeworks._
 
-object refined extends App {
+object refined {
 
   /**
      Информацию по библиотеке refined можно найти здесь - https://github.com/fthomas/refined
