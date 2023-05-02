@@ -10,21 +10,22 @@ class Homework11Spec extends AnyFunSpec with Matchers {
   import refined._
 
   describe("Rank") {
-    def test(num: Int, isRank: Boolean): Unit =
-      it(s"$num is ${if (!isRank) "not " else ""}a rank") {
+    def test(idx: Int, num: Int, isRank: Boolean): Unit =
+      it(s"$num is ${if (!isRank) "not " else ""}a rank; $idx") {
         Rank(num) should matchPattern {
           case Right(_: Rank) if isRank =>
           case Left(_) if !isRank       =>
         }
       }
 
-    0 to 100 foreach (test(_, isRank = true))
+    0 to 100 foreach (test(0, _, isRank = true))
 
     Iterator
       .continually(Random.nextInt())
       .filterNot(it => it >= 0 && it <= 100)
       .take(100)
-      .foreach(test(_, isRank = false))
+      .zipWithIndex
+      .foreach { case (num, idx) => test(idx, num, isRank = false) }
 
   }
 
@@ -108,21 +109,22 @@ class Homework11Spec extends AnyFunSpec with Matchers {
   }
 
   describe("Zero") {
-    def test(rational: Rational, isZero: Boolean): Unit =
-      it(s"$rational is ${if (isZero) "" else "not "}a zero") {
+    def test(idx: Int, rational: Rational, isZero: Boolean): Unit =
+      it(s"$rational is ${if (isZero) "" else "not "}a zero; $idx") {
         Zero(rational) should matchPattern {
           case Right(_: Zero) if isZero =>
           case Left(_) if !isZero       =>
         }
       }
 
-    test(Rational(0, 0), isZero = true)
+    test(0, Rational(0, 0), isZero = true)
 
     Iterator
       .continually((Random.nextDouble(), Random.nextDouble()))
       .collect { case (r, i) if !(r == 0 && i == 0) => Rational(r, i) }
       .take(100)
-      .foreach(test(_, isZero = false))
+      .zipWithIndex
+      .foreach { case (idx, num) => test(idx, num, isZero = false) }
   }
 
   describe("Real") {
