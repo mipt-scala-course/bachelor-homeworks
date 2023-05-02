@@ -124,7 +124,7 @@ class Homework11Spec extends AnyFunSpec with Matchers {
       .collect { case (r, i) if !(r == 0 && i == 0) => Rational(r, i) }
       .take(100)
       .zipWithIndex
-      .foreach { case (idx, num) => test(idx, num, isZero = false) }
+      .foreach { case (num, idx) => test(idx, num, isZero = false) }
   }
 
   describe("Real") {
