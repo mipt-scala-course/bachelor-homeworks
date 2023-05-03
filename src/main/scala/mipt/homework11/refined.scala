@@ -13,7 +13,7 @@ object refined {
     *   2. Он должен иметь path dependent абстрактный тип Valid
     *   3. Он должен иметь path dependent алиас Type выраженный через Refined, A, Valid
     *   4. Он должен иметь реализованный метод apply, принимающий значение фактического типа
-    *      и возвращающий Either[String, Type]
+    *      и возвращающий Either[String, Type]. Он должен иметь модификатор final.
     *
     */
   trait RefinedNewType
@@ -24,7 +24,7 @@ object refined {
     *   2. Он должен иметь path dependent абстрактный тип Valid
     *   3. Он должен иметь path dependent алиас Type выраженный через Refined, C, Valid
     *   4. Он должен иметь реализованный метод apply, принимающий значение фактического типа
-    *      и возвращающий Either[String, Type]
+    *      и возвращающий Either[String, Type]. Он должен иметь модификатор final.
     *
     */
   trait RefinedCollectionNewType
