@@ -47,7 +47,7 @@ object refined {
   task"IPv4 или IPv6 адрес"
   type IpAddress
 
-  task"Российский мобильный номер (с международным кодом +7)"
+  task"Российский мобильный номер (с международным кодом +7 (а не с 8). После +7 идет цифра 9. Никаких скобок, дефисов, пробелов и т.д)"
   type RussianMobilePhone
 
   case class Rational(r: Double, i: Double)
