@@ -50,15 +50,15 @@ object refined {
   task"Российский мобильный номер (с международным кодом +7, дальше идет цифра 9, за ней 9 произвольных цифр без скобок, дефисов, пробелов и т.д)"
   type RussianMobilePhone
 
-  case class Rational(r: Double, i: Double)
+  case class Complex(r: Double, i: Double)
 
-  task"Вывести 0 из типа Rational"
+  task"Вывести 0 из типа Complex"
   type Zero
 
-  task"Вывести тип мнимой части из типа Rational"
+  task"Вывести тип мнимой части из типа Complex"
   type Imaginary
 
-  task"Вывести тип действительной части из типа Rational"
+  task"Вывести тип действительной части из типа Complex"
   type Real
 
 }
