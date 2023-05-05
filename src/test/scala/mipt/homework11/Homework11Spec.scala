@@ -54,7 +54,7 @@ class Homework11Spec extends AnyFunSpec with Matchers {
 
     test(List.empty, isNonEmpty = false)
     test(List(1, 2, 3), isNonEmpty = true)
-    test(List(Rational(2, 3)), isNonEmpty = true)
+    test(List(Complex(2, 3)), isNonEmpty = true)
   }
 
   describe("SetWithZero") {
@@ -109,56 +109,56 @@ class Homework11Spec extends AnyFunSpec with Matchers {
   }
 
   describe("Zero") {
-    def test(idx: Int, rational: Rational, isZero: Boolean): Unit =
-      it(s"$rational is ${if (isZero) "" else "not "}a zero; $idx") {
-        Zero(rational) should matchPattern {
+    def test(idx: Int, complex: Complex, isZero: Boolean): Unit =
+      it(s"$complex is ${if (isZero) "" else "not "}a zero; $idx") {
+        Zero(complex) should matchPattern {
           case Right(_: Zero) if isZero =>
           case Left(_) if !isZero       =>
         }
       }
 
-    test(0, Rational(0, 0), isZero = true)
+    test(0, Complex(0, 0), isZero = true)
 
     Iterator
       .continually((Random.nextDouble(), Random.nextDouble()))
-      .collect { case (r, i) if !(r == 0 && i == 0) => Rational(r, i) }
+      .collect { case (r, i) if !(r == 0 && i == 0) => Complex(r, i) }
       .take(100)
       .zipWithIndex
       .foreach { case (num, idx) => test(idx, num, isZero = false) }
   }
 
   describe("Real") {
-    def test(rational: Rational, isReal: Boolean): Unit =
-      it(s"$rational is ${if (isReal) "" else "not "}a real number") {
-        Real(rational) should matchPattern {
+    def test(complex: Complex, isReal: Boolean): Unit =
+      it(s"$complex is ${if (isReal) "" else "not "}a real number") {
+        Complex(complex) should matchPattern {
           case Right(_: Real) if isReal =>
           case Left(_) if !isReal       =>
         }
       }
 
-    test(Rational(0, 0), isReal = true)
-    test(Rational(-100, 0), isReal = true)
-    test(Rational(100, 0), isReal = true)
-    test(Rational(0.5, -0.5), isReal = false)
-    test(Rational(0, 100), isReal = false)
-    test(Rational(0, -100), isReal = false)
+    test(Complex(0, 0), isReal = true)
+    test(Complex(-100, 0), isReal = true)
+    test(Complex(100, 0), isReal = true)
+    test(Complex(0.5, -0.5), isReal = false)
+    test(Complex(0, 100), isReal = false)
+    test(Complex(0, -100), isReal = false)
   }
 
   describe("Imaginary") {
-    def test(rational: Rational, isImaginary: Boolean): Unit =
-      it(s"$rational is ${if (isImaginary) "" else "not "}an imaginary number") {
-        Imaginary(rational) should matchPattern {
+    def test(complex: Complex, isImaginary: Boolean): Unit =
+      it(s"$complex is ${if (isImaginary) "" else "not "}an imaginary number") {
+        Imaginary(complex) should matchPattern {
           case Right(_: Imaginary) if isImaginary =>
           case Left(_) if !isImaginary            =>
         }
       }
 
-    test(Rational(0, 0), isImaginary = false)
-    test(Rational(-100, 0), isImaginary = false)
-    test(Rational(100, 0), isImaginary = false)
-    test(Rational(0.5, -0.5), isImaginary = false)
-    test(Rational(0, 100), isImaginary = true)
-    test(Rational(0, -100), isImaginary = true)
+    test(Complex(0, 0), isImaginary = false)
+    test(Complex(-100, 0), isImaginary = false)
+    test(Complex(100, 0), isImaginary = false)
+    test(Complex(0.5, -0.5), isImaginary = false)
+    test(Complex(0, 100), isImaginary = true)
+    test(Complex(0, -100), isImaginary = true)
 
   }
 }
