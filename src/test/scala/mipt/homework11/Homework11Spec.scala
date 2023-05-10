@@ -130,7 +130,7 @@ class Homework11Spec extends AnyFunSpec with Matchers {
   describe("Real") {
     def test(complex: Complex, isReal: Boolean): Unit =
       it(s"$complex is ${if (isReal) "" else "not "}a real number") {
-        Complex(complex) should matchPattern {
+        Real(complex) should matchPattern {
           case Right(_: Real) if isReal =>
           case Left(_) if !isReal       =>
         }
