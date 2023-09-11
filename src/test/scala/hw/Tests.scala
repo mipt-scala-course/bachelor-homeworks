@@ -91,9 +91,13 @@ class Tests extends munit.FunSuite:
     Console.withOut(stream)(print)
     val res = stream.toString
     stream.close()
+    println(endsWith)
+    println(res.stripTrailing)
     assertEquals(res.stripTrailing.endsWith(endsWith), true, res)
 
   test("II. 5 log method"):
+    import hw.Loggable.*
+
     val name = "Awesome".toName
     testOut(name.log("awesome name"), "\"message\":\"awesome name\",\"context\":\"Aweso**\"}")
 
@@ -106,13 +110,13 @@ class Tests extends munit.FunSuite:
 
   test("III. 1 sensitive type class"):
     val code =
-      """case class ThereIsNoSensitiveInfo(int: Int, str: String)
-         summon[Sensitive[ThereIsNoSensitiveInfo]]"""
+      "case class ThereIsNoSensitiveInfo(int: Int, str: String)\nsummon[Sensitive[ThereIsNoSensitiveInfo]]"
     assertNoDiff(
       compileErrors(code),
-      """error: No given instance of type hw.Sensitive[ThereIsNoSensitiveInfo] was found for parameter x of method summon in object Predef
-        |         summon[Sensitive[ThereIsNoSensitiveInfo]]
-        |                                                 ^""".stripMargin
+      """|error: No given instance of type hw.Sensitive[ThereIsNoSensitiveInfo] was found for parameter x of method summon in object Predef
+         |summon[Sensitive[ThereIsNoSensitiveInfo]]
+         |                                        ^
+         |""".stripMargin
     )
 
   test("III. 2 non-sensitive loggable instances"):
