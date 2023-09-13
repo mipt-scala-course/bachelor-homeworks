@@ -1,89 +1,152 @@
 package hw
 
-import io.circe.{Json, Printer}
+import io.circe.Json
 import io.circe.Encoder
+import scala.deriving.Mirror
+import scala.compiletime.{erasedValue, summonInline, summonFrom}
 
-import java.time.{LocalDate, LocalDateTime}
-import scala.util.NotGiven
-import scala.util.matching.Regex
-
-/** *
-  *   I. Новые типы
-  *
-  * 1) Реализовать новый тип Login. Логин должен содержать латинские буквы (маленькие/большие), цифры и нижнее
-  * подчеркивание. Логин не может начинаться c нижнего подчеркивания или цифры. Тип Login должен быть подтипом String.
-  *
-  * 2) Реализовать новый тип Name. Имя должно быть непустым и не может начинаться с пробела. Тип Name должен быть
-  * подтипом String.
-  *
-  * II. Классы типов: Loggable
-  *
-  * Loggable[A] - класс типов, описывающий как логгировать в виде Json значения типа A. Данные с чувствительной
-  * информацией должны маскироваться. Тип Json - модель для описания джисонов из библиотеки circe. Для выполнения
-  * данного задания также понадобится класс типов Encoder (Encoder.AsObject), который описывает как значение превратить
-  * в Json (например, для последующей отправки по сети). Разница между Encoder и Loggable - работа с чувствительными
-  * данными, Encoder - не маскирует их и оставляет как есть.
-  *
-  * 1) Реализовать метод contramap в классе типов Loggable. Добавить инстанс Loggable[String].
-  *
-  * 2) Реализовать инстанс Loggable для Name, который маскирует все символы имени после 6-го включительно.
-  *
-  * 3) Реализовать инстанс Loggable для JwtToken. Поле token - чувствительная информация, должно логироваться как "***".
-  *
-  * 4) Используя инстансы Loggable[JwtToken], Loggable[Name] реализовать инстанс Loggable[User].
-  *
-  * 5) Добавить метод log, который логирует модель (печатает в консоль) в соответствии с ее инстансом Loggable, добавляя
-  * поля message (единственный параметр метода log) и timestamp (текущее время). Метод log должен быть доступен (быть
-  * может, с дополнительным импортом) для любого типа, для которго есть инстанс Loggable. Реализовать через конструкцию
-  * extention.
-  *
-  * val user: User = ... user.log("user signed in")
-  *
-  * Для пользователя с логином vasya и именем Vasiliy должно распечатать что-то вроде: {"message":"user signed
-  * in","timestamp":"2023-09-06T12:33:10.784230","context":{"login":"vasya","name":"Vasil**","token":{"token":"***","exp":1693929522}}}
-  *
-  * timestamp - текущее время в поле context - информация о том значении, которое логируем (в данном случае - о
-  * пользователе)
-  *
-  * Печатать вывод (json) без пробелов и переводов строк.
-  *
-  * III. Классы типов: Sensitive
-  *
-  * Sensitive[A] - класс типов, показывающий что данные содержат чувствительную информацю. Sensitive - не содержит
-  * методов, наличие инстанса Sensitive для типа A - показывает, что A содержит чувствительные данные. Отсутствие
-  * инстанса Sensitive у A - показывает, что A не содержит чувствительные данные.
-  *
-  * 1) Используя синтаксис derives (и реализуя необходимый для этого инструментал в Sensitive) "пометить" данные
-  * JwtToken, User, Name как чувствительные.
-  *
-  * 2) Написать универсальный метод, который выводит инстанс Loggable для любой модели, НЕ содержащей чувствительную
-  * информацию, имеющей инстанс Encoder. Надо, чтобы такой код работал без дополнительных инстансов:
-  *
-  * import Loggable.given // или import Loggable.* в зависимости от вашей реализации log
-  *
-  * case class Custom(foo: String, bar: Int) derives Encoder.AsObject Custom("foo", 42).log("custom event")
-  */
-type Login //= ???
-object Login:
-  def apply(str: String): Either[String, Login] = ???
-
-type Name //= ???
-object Name:
-  def apply(str: String): Either[String, Name] = ???
-
+/**
+ *  Вывод Loggable.
+ *  Цель этого задания - реализовать автоматическую деривацию инстансов Loggable для
+ *    алгебраических типов данных.
+ *
+ *  I. Вывод Loggable для рекордов
+ *
+ *    1.Реализовать в трейте Instances инстансы Loggable для стандартных типов данных:
+ *      - Int, Boolean, String
+ *
+ *      Реализовать вывод инстансов Loggable
+ *      - для типа Option[A] (имея в контексте Loggable[A])
+ *        кейс None в json печатать в виде null
+ *        кейс Some(x) в json печатать как залоггированное значение x
+ *
+ *      - для типа List[A] (имея в контексте Loggable[A])
+ *
+ *    2.Реализовать метод `summonLabels[T <: Tuple]: List[String]`, которому в качестве тайп-аргумента T
+ *      передается кортеж строк-синглтонов, а на выходе список этих строк.
+ *
+ *        summonLabels[("lol", "kek")] // List("lol", "kek")
+ *
+ *    3.Реализовать метод `summonInst[T <: Tuple]: List[Loggable[?]]`, кoторому в качестве тайп-аргумента T
+ *      передается кортеж типов, а на выходе список инстансов Loggable[?] для этих типов, сохраняя порядок.
+ *      Для каждого типа из кортежа должен быть в скоупе инстанс Loggable, иначе дожна быть брошена ошибка компиляции.
+ *
+ *        case class Foo(x: Int)
+ *        object Foo:
+ *          given Loggable[Foo] with
+ *            def jsonLog(a: A): Json = Json.Null
+ *
+ *        summonInst[(String, Foo, Boolean)] // = List(Loggable.given_Loggable_String, Foo.given_Loggable_Foo, Loggable.given_Loggable_Boolean)
+ *
+ *        case class Bar()
+ *
+ *        summonInst[(Bar, String)] // not compiles
+ *
+ *    4. Реализовать метод
+ *         `def logProduct[T](p: Mirror.ProductOf[T], vs: => List[(String, Loggable[?])]): Loggable[T]`,
+ *       которому на вход передается тип Т, являющийся рекордом (аргумент p: Mirror.ProductOf[T])
+ *       и аргумент vs - список пар из имени поля рекорда, инстанса Loggable для типа этого поля,
+ *       на выходе инстанс Loggable для типа T
+ *
+ *         case class Boo(x: String, y: Int)
+ *         val inst = Loggable.logProduct[Boo](
+ *           summonInline[Mirror.ProductOf[Boo]],
+ *           List("x" -> summon[Loggable[String]], "y" -> summon[Loggable[Int]])
+ *         )
+ *
+ *         println(inst.jsonLog(Boo("x", 42))) // prints {"x" : "x", "y" : 42 }
+ *
+ *    5.Используя полученные методы реализовать метод
+ *        `inline def derive[T](using m: Mirror.Of[T]): Loggable[T]`
+ *      который выводит инстансы `Loggable` только для рекордов
+ *
+ *        case class Boo(x: String, y: Int) derives Loggable
+ *
+ *        println(inst.jsonLog(Boo("x", 42))) // prints {"x" : "x", "y" : 42 }
+ *
+ *  II. Вывод Loggable для типов сумм
+ *
+ *    1.Реализовать метод
+ *         `def logSum[T](s: Mirror.SumOf[T], vs: => List[(String, Loggable[?])]): Loggable[T]`
+ *      которому на вход передается тип Т, являющийся типом-суммой (аргумент s: Mirror.SumOf[T])
+ *      и аргумент vs - список пар из имен вариантов T (детей) и инстансов Loggable для них,
+ *      на выходе инстанс Loggable для типа T.
+ *      Итоговый json должен быть объектом с одним полем - именем соответствующего варианта, значение которого
+ *      будет залогированно в соответствии с инстансом этого варианта значения.
+ *
+ *        sealed trait Koo
+ *        case class KooI(x: Int) extends Koo derives Loggable // имя варианта KooI
+ *        case class KooB(y: Boolean) extends Koo derives Loggable // имя варианта KooB
+ *
+ *        val inst = Loggable.logSum[Koo](
+ *          summonInline[Mirror.SumOf[Koo]],
+ *          List("KooI" -> summon[Loggable[KooI]], "KooB" -> summon[Loggable[KooB]])
+ *        )
+ *
+ *        println(inst.jsonLog(KooB(false))) // prints { "KooB" : { "y" : false } }
+ *
+ *    2.Поправить метод `derive`, чтобы вывод работал для типов-рекордов и для типов сумм,
+ *      рализованных через sealed trait:
+ *
+ *        sealed trait Koo derives Loggable
+ *        case class KooI(x: Int) extends Koo derives Loggable
+ *        case class KooB(y: Boolean) extends Koo derives Loggable
+ *
+ *        println(summon[Loggable[Koo]].jsonLog(KooB(false))) // prints { "KooB" : { "y" : false } }
+ *
+ *      Работает ли при этом вывод для типов-сумм, реализованных через enum?
+ *
+ *        enum Koo derives Loggable:
+ *          case KooI(x: Int)
+ *          case KooB(y: Boolean)
+ *
+ *    3.Реализовать вспомогательный метод
+ *        `inline def summonChild[C, P]: Loggable[C]`
+ *      на входе которого тип P - тип-cумма
+ *      тип C - вариант (и подтип) типа P
+ *      на выходе инстанс Loggable для типа С
+ *      Если в скуопе есть инстанс Loggable для С - вернуть его
+ *      Иначе вывести Loggable для типа С с помощью метода derived и вернуть его
+ *
+ *        enum Koo:
+ *          case KooI(x: Int)
+ *          case KooB(y: Boolean)
+ *
+ *        object Koo:
+ *          given Loggable[KooB] with
+ *            override def jsonLog(a: Koo.KooB): Json = Json.Null
+ *
+ *        println(Loggable.summonChild[Koo.KooI, Koo].jsonLog(Koo.KooI(42)))   // prints { "x": 42 }
+ *        println(Loggable.summonChild[Koo.KooB, Koo].jsonLog(Koo.KooB(true))) // prints null
+ *
+ *      Для реализации пригодится метод compiletime.summonFrom
+ *
+ *    4. Исправить метод derive, чтобы деривация работала также для типов сумм, выраженных через enum.
+ *       Для этого может пригодиться вспомогательный метод
+ *         `inline def summonInstAuto[T <: Tuple, P]: List[Loggable[?]]`
+ *       похожий на summonInst, но который выводит инстансы через метод summonChild
+ *
+ *
+ */
 trait Loggable[A]:
   def jsonLog(a: A): Json
 
-  def contramap[B](f: B => A): Loggable[B] = ???
+object Loggable extends Instances, Derivation:
+  inline def derived[T](using m: Mirror.Of[T]): Loggable[T] = derive
 
-object Loggable
+trait Instances
 
-trait Sensitive[A]
+trait Derivation:
+  inline def summonLabels[T <: Tuple]: List[String] = ???
 
-case class JwtToken(token: String, exp: Long)
+  inline def summonInst[T <: Tuple]: List[Loggable[?]] = ???
 
-case class User(
-    login: Login,
-    name: Name,
-    token: JwtToken
-)
+  def logProduct[T](p: Mirror.ProductOf[T], vs: => List[(String, Loggable[?])]): Loggable[T] = ???
+
+  inline def derive[T](using m: Mirror.Of[T]): Loggable[T] = ???
+
+  def logSum[T](s: Mirror.SumOf[T], vs: => List[(String, Loggable[?])]): Loggable[T] = ???
+
+  inline def summonChild[C, P]: Loggable[C] = ???
+
+  inline def summonInstAuto[T <: Tuple, P]: List[Loggable[?]] = ???

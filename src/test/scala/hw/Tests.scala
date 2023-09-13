@@ -1,127 +1,164 @@
 package hw
 
-import java.time.LocalDate
-import scala.jdk.CollectionConverters.*
-import io.circe.Encoder
+import io.circe.Json
+import io.circe.syntax.*
+import scala.compiletime.summonInline
+import scala.deriving.Mirror
 
 class Tests extends munit.FunSuite:
-  extension (x: String)
-    def toName: Name   = Name(x).getOrElse(throw new Exception(s"expected name `$x` is ok"))
-    def toLogin: Login = Login(x).getOrElse(throw new Exception(s"expected login `$x` is ok"))
+  test("I.1 Standard instances"):
+    val testString = "Test String"
+    val resStr = summon[Loggable[String]].jsonLog(testString)
+    assertEquals(resStr, Json.fromString(testString), resStr)
 
-  test("I.1 Login new type"):
-    val loginStartsWithNumber = Login("1foo")
-    assertEquals(loginStartsWithNumber.isLeft, true, loginStartsWithNumber)
+    val testBool = false
+    val resBool = summon[Loggable[Boolean]].jsonLog(testBool)
+    assertEquals(resBool, Json.fromBoolean(testBool), resBool)
 
-    val loginStartsWithUnderscore = Login("_foo")
-    assertEquals(loginStartsWithUnderscore.isLeft, true, loginStartsWithUnderscore)
+    val testInt = 42
+    val resInt = summon[Loggable[Int]].jsonLog(testInt)
+    assertEquals(resInt, Json.fromInt(testInt), resInt)
 
-    val login = Login("cheburek")
-    assertEquals(login: Either[String, String], Right("cheburek"), login)
+    val testList = List("lol", "kek", "cheb")
+    val resList = summon[Loggable[List[String]]].jsonLog(testList)
+    assertEquals(resList, Json.arr("lol".asJson, "kek".asJson, "cheb".asJson), resList)
 
-  test("I.2 Name new type"):
-    val nameStartsWithSpace = Name(" Vasiliy")
-    assertEquals(nameStartsWithSpace.isLeft, true, nameStartsWithSpace)
+    val testOption = Some(true)
+    val resOption = summon[Loggable[Option[Boolean]]].jsonLog(testOption)
+    assertEquals(resOption, true.asJson, resOption)
 
-    val nameEmpty = Login("")
-    assertEquals(nameEmpty.isLeft, true, nameEmpty)
+    val resOptionEmpty = summon[Loggable[Option[Boolean]]].jsonLog(None)
+    assertEquals(resOptionEmpty, Json.Null, resOptionEmpty)
 
-    val name = Login("Vasiliy")
-    assertEquals(name: Either[String, String], Right("Vasiliy"), name)
+  test("I.2 summonLabels"):
+    val labels = Loggable.summonLabels[("lol", "kek", "Cheb")]
+    assertEquals(labels, List("lol", "kek", "Cheb"), labels)
 
-  test("II. 1 Loggable contramap and string instance"):
-    val testString = "lol kek"
-    val jsonTest   = summon[Loggable[String]].jsonLog(testString)
-    assertEquals(jsonTest.toString, "\"lol kek\"", jsonTest)
+    val labelsSingle = Loggable.summonLabels["foo" *: EmptyTuple]
+    assertEquals(labelsSingle, List("foo"), labelsSingle)
 
-    val dateLoggable: Loggable[LocalDate] = summon[Loggable[String]].contramap(_.toString)
-    val testDate                          = LocalDate.parse("2023-04-02")
-    val json                              = dateLoggable.jsonLog(testDate)
-    assertEquals(json.toString, "\"2023-04-02\"", testDate)
+    val labelsEmpty = Loggable.summonLabels[EmptyTuple]
+    assertEquals(labelsEmpty, List(), labelsEmpty)
 
-  def testJson[A: Loggable](a: A, expected: String): Unit =
-    val json = summon[Loggable[A]].jsonLog(a)
-    assertEquals(json.toString, expected, json)
+  test("I.3 summonInst"):
+    case class Foo(x: Int)
+    object Foo:
+     given Loggable[Foo] with
+       override def jsonLog(a: Foo): Json = Json.Null
 
-  test("III. 2 Loggable for Name"):
-    testJson("Vasiliy".toName, s"\"Vasil**\"")
-    testJson("Siniy".toName, s"\"Siniy\"")
-    testJson("Abrakadabra".toName, s"\"Abrak******\"")
+    val insts = Loggable.summonInst[(String, Int, Foo)]
+    assertEquals(insts, List(summon[Loggable[String]], summon[Loggable[Int]], Foo.given_Loggable_Foo), insts)
 
-  val sampleAccessToken =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6InRtRG5YaUNldzlvS3hSc2gyZTNNdTVBNFBoNCIsImtpZCI6InRtRG5YaUNldzlvS3hSc2gyZTNNdTVBNFBoNCJ9.eyJhdWQiOiJtaWNyb3NvZnQ6aWRlbnRpdHlzZXJ2ZXI6MDY3ZTMxYjgtNWNkYi00ZmY3LTg5MmMtMTVjZWI4OGU3MDY4IiwiaXNzIjoiaHR0cDovL2ZzLnRpbmtvZmYucnUvYWRmcy9zZXJ2aWNlcy90cnVzdCIsImlhdCI6MTY5MzkyNTkyMiwibmJmIjoxNjkzOTI1OTIyLCJleHAiOjE2OTM5Mjk1MjIsImFjY291bnQiOiJzdmNfZHdoX2hlYWxlciIsImRpc3BsYXlOYW1lIjoic3ZjX2R3aF9oZWFsZXIiLCJ1c2VySWQiOiJlNXZJc3g5VFZrNmx1bnhSWVJ4ckhBPT0iLCJhcHB0eXBlIjoiUHVibGljIiwiYXBwaWQiOiIwNjdlMzFiOC01Y2RiLTRmZjctODkyYy0xNWNlYjg4ZTcwNjgiLCJhdXRobWV0aG9kIjoidXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFjOmNsYXNzZXM6UGFzc3dvcmRQcm90ZWN0ZWRUcmFuc3BvcnQiLCJhdXRoX3RpbWUiOiIyMDIzLTA5LTA1VDE0OjU4OjQyLjA2NloiLCJ2ZXIiOiIxLjAifQ.mUj0qyMbFOFON2npD9bXWXQITe51D7ALoym3QQDJVHBXttwcO-0qKDg6XXpAC0qQsOE1M9ZACS45ZF8H2h0NrviY6MgCPgaU6FkX1IkVeizqiiO2Uj0Q6_nQFAO3TT5r8mhby04CYy0InoPlnK36Yu1ha9G2-mzKHwH-qS35q8JB9ROq0v44rtf0dV3QigjmSYkcuEAZYae1sD-n3sDEFJjG1QAPbKvUTmD3SLOnb5ELbzz9NL2j23EdH_Qmo1SmBayl1P2-e_KIkk5Yim5ThfzybcSmKbf7gsTl5ndizWjL2W1-6fDrl_Rq2dp56V8plsUzioir8DqpRzgZTe08xg"
-  val sampleJwt = JwtToken(sampleAccessToken, 1693929522L)
-  val loggedSampleJwt =
-    s"""|{
-        |  "token" : "***",
-        |  "exp" : ${sampleJwt.exp}
-        |}""".stripMargin
-
-  test("II. 3 Loggable Jwt Token instance"):
-    testJson(sampleJwt, loggedSampleJwt)
-
-  def loggedTokenFmtd(prefix: String): String =
-    List.from(loggedSampleJwt.lines().iterator().asScala) match
-      case h :: t => (h :: t.map(prefix + _)).mkString("\n")
-      case Nil    => ""
-
-  test("II. 4 Loggable for User"):
-    val login = "awes_ome_1".toLogin
-    val name  = "Awesome".toName
-    val expected =
-      s"""|{
-          |  "login" : "$login",
-          |  "name" : "Aweso**",
-          |  "token" : ${loggedTokenFmtd("  ")}
-          |}""".stripMargin
-    testJson(User(login, name, sampleJwt), expected)
-
-    val login2 = "super_mega_chill".toLogin
-    val name2  = "Chillovek Molekula".toName
-    val expected2 =
-      s"""|{
-          |  "login" : "$login2",
-          |  "name" : "Chill*************",
-          |  "token" : ${loggedTokenFmtd("  ")}
-          |}""".stripMargin
-    testJson(User(login2, name2, sampleJwt), expected2)
-
-  def testOut[A](print: => Unit, endsWith: String): Unit =
-    val stream = new java.io.ByteArrayOutputStream()
-    Console.withOut(stream)(print)
-    val res = stream.toString
-    stream.close()
-    println(endsWith)
-    println(res.stripTrailing)
-    assertEquals(res.stripTrailing.endsWith(endsWith), true, res)
-
-  test("II. 5 log method"):
-    import hw.Loggable.*
-
-    val name = "Awesome".toName
-    testOut(name.log("awesome name"), "\"message\":\"awesome name\",\"context\":\"Aweso**\"}")
-
-    val login = "awes_ome_1".toLogin
-    val user  = User(login, name, sampleJwt)
-    testOut(
-      user.log("awesome user just signed in"),
-      "\"message\":\"awesome user just signed in\",\"context\":{\"login\":\"awes_ome_1\",\"name\":\"Aweso**\",\"token\":{\"token\":\"***\",\"exp\":1693929522}}}"
+  test("I.4 logProduct"):
+    case class Boo(x: String, y: Int, z: List[String])
+    val inst = Loggable.logProduct[Boo](
+      summonInline[Mirror.ProductOf[Boo]],
+      List("x" -> summon[Loggable[String]], "y" -> summon[Loggable[Int]], "z" -> summon[Loggable[List[String]]])
     )
 
-  test("III. 1 sensitive type class"):
-    val code =
-      "case class ThereIsNoSensitiveInfo(int: Int, str: String)\nsummon[Sensitive[ThereIsNoSensitiveInfo]]"
-    assertNoDiff(
-      compileErrors(code),
-      """|error: No given instance of type hw.Sensitive[ThereIsNoSensitiveInfo] was found for parameter x of method summon in object Predef
-         |summon[Sensitive[ThereIsNoSensitiveInfo]]
-         |                                        ^
-         |""".stripMargin
+    val result = inst.jsonLog(Boo("x", 42, List("lol", "kek")))
+    val expected = Json.obj(
+      "x" -> Json.fromString("x"),
+      "y" -> Json.fromInt(42),
+      "z" -> Json.arr("lol".asJson, "kek".asJson)
+    )
+    assertEquals(result, expected, result)
+
+  test("I.5 derivation for records"):
+    case class Token(token: String, hash: Int)
+    object Token:
+      given Loggable[Token] with
+        override def jsonLog(a: Token): Json = Json.obj(
+          "token" -> a.token.map(_ => '*').asJson,
+          "hash" -> a.hash.asJson,
+        )
+
+
+    case class User(name: String, tokens: List[Token]) derives Loggable
+
+    val result = summon[Loggable[User]].jsonLog(User("Vasiliy", List(Token("private_key", 42), Token("public_key", 13))))
+    val expected = Json.obj(
+      "name" -> "Vasiliy".asJson,
+      "tokens" -> Json.arr(
+        Json.obj(
+          "token" -> "***********".asJson,
+          "hash" -> 42.asJson
+        ),
+        Json.obj(
+          "token" -> "**********".asJson,
+          "hash" -> 13.asJson
+        )
+      )
+    )
+    assertEquals(result, expected, result)
+
+  test("II.1 logSum"):
+    sealed trait Koo
+    case class KooI(x: Int) extends Koo derives Loggable
+    case class KooB(y: Boolean) extends Koo derives Loggable
+
+    val inst = Loggable.logSum[Koo](
+      summonInline[Mirror.SumOf[Koo]],
+      List("KooI" -> summon[Loggable[KooI]], "KooB" -> summon[Loggable[KooB]])
     )
 
-  test("III. 2 non-sensitive loggable instances"):
-    import hw.Loggable.{*, given}
+    val result = inst.jsonLog(KooB(false))
+    val expected = Json.obj(
+      "KooB" -> Json.obj("y" -> false.asJson)
+    )
 
-    case class ThereIsNoSensitiveInfo(int: Int, str: String) derives Encoder.AsObject
-    val data = ThereIsNoSensitiveInfo(42, "lol")
-    testOut(data.log("data"), "\"message\":\"data\",\"context\":{\"int\":42,\"str\":\"lol\"}}")
+    assertEquals(result, expected, result)
+
+  test("II.2 derive sealed trait"):
+    sealed trait Koo derives Loggable
+    case class KooI(x: Int) extends Koo
+    object KooI:
+      given Loggable[KooI] with
+        override def jsonLog(a: KooI): Json = a.x.asJson
+
+    case class KooB(y: Boolean, z: List[String]) extends Koo derives Loggable
+
+    val inst2 = Loggable.logSum[Koo](
+      summonInline[Mirror.SumOf[Koo]],
+      List("KooI" -> summon[Loggable[KooI]], "KooB" -> summon[Loggable[KooB]])
+    )
+
+    val result = inst2.jsonLog(KooI(42))
+    val expected = Json.obj(
+      "KooI" -> 42.asJson
+    )
+
+    assertEquals(result, expected, result)
+
+  test("II.3 summonChild"):
+    enum Koo:
+      case KooI(x: Int)
+      case KooB(y: Boolean)
+
+    object Koo:
+      given Loggable[KooB] with
+        override def jsonLog(a: Koo.KooB): Json = Json.Null
+
+    val result1 = Loggable.summonChild[Koo.KooI, Koo].jsonLog(Koo.KooI(42))
+    val expected1 = Json.obj("x" -> 42.asJson)
+    assertEquals(result1, expected1, result1)
+
+    val result2 = Loggable.summonChild[Koo.KooB, Koo].jsonLog(Koo.KooB(true))
+    assertEquals(result2, Json.Null, result2)
+
+
+  test("II.4 derive sum"):
+    enum Koo derives Loggable:
+      case KooI(x: Int)
+      case KooB(y: Boolean)
+
+    object Koo:
+      given Loggable[KooB] with
+        override def jsonLog(a: Koo.KooB): Json = Json.Null
+
+    val result1 = Loggable.summonChild[Koo.KooI, Koo].jsonLog(Koo.KooI(42))
+    val expected1 = Json.obj("x" -> 42.asJson)
+    assertEquals(result1, expected1, result1)
+
+    val result2 = Loggable.summonChild[Koo.KooB, Koo].jsonLog(Koo.KooB(true))
+    assertEquals(result2, Json.Null, result2)
