@@ -23,10 +23,10 @@ class Tests extends munit.FunSuite:
     val nameStartsWithSpace = Name(" Vasiliy")
     assertEquals(nameStartsWithSpace.isLeft, true, nameStartsWithSpace)
 
-    val nameEmpty = Login("")
+    val nameEmpty = Name("")
     assertEquals(nameEmpty.isLeft, true, nameEmpty)
 
-    val name = Login("Vasiliy")
+    val name = Name("Vasiliy")
     assertEquals(name: Either[String, String], Right("Vasiliy"), name)
 
   test("II. 1 Loggable contramap and string instance"):
