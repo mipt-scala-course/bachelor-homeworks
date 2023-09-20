@@ -16,16 +16,16 @@ sealed trait Zero extends Nat
 
 sealed trait Succ[x <: Nat] extends Nat
 
-type `0` = Zero
-type `1` = Succ[`0`]
-type `2` = Succ[`1`]
-type `3` = Succ[`2`]
-type `4` = Succ[`3`]
-type `5` = Succ[`4`]
-type `6` = Succ[`5`]
-type `7` = Succ[`6`]
-type `8` = Succ[`7`]
-type `9` = Succ[`8`]
+type `0`  = Zero
+type `1`  = Succ[`0`]
+type `2`  = Succ[`1`]
+type `3`  = Succ[`2`]
+type `4`  = Succ[`3`]
+type `5`  = Succ[`4`]
+type `6`  = Succ[`5`]
+type `7`  = Succ[`6`]
+type `8`  = Succ[`7`]
+type `9`  = Succ[`8`]
 type `10` = Succ[`9`]
 
 /**

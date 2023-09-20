@@ -6,8 +6,8 @@ import io.circe.syntax.*
 
 class Tests extends munit.FunSuite:
   test("I.1 toInt (value level)"):
-    val x1: 0 = toInt[`0`]
-    val x2: 3 = toInt[`3`]
+    val x1: 0  = toInt[`0`]
+    val x2: 3  = toInt[`3`]
     val x3: 10 = toInt[`10`]
 
     val badCode =
@@ -130,7 +130,10 @@ class Tests extends munit.FunSuite:
     val user = User("Vasiliy", 42)
     import Loggable.*
 
-    testOut(user.log("user signed in"), str =>
-      parse(str).flatMap(_.hcursor.downField("position").as[String])
-        .contains("Tests.scala:133")
+    testOut(
+      user.log("user signed in"),
+      str =>
+        parse(str)
+          .flatMap(_.hcursor.downField("position").as[String])
+          .contains("Tests.scala:133")
     )
