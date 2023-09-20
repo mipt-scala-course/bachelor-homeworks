@@ -135,5 +135,5 @@ class Tests extends munit.FunSuite:
       str =>
         parse(str)
           .flatMap(_.hcursor.downField("position").as[String])
-          .contains("Tests.scala:133")
+          .contains("Tests.scala:134")
     )
