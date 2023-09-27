@@ -1,7 +1,7 @@
 import _root_.sbt.Keys._
 
-name := "magistracy-homeworks"
-version := "0.1"
+name         := "bachelor-homeworks"
+version      := "0.1"
 scalaVersion := "3.3.1"
 
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0"
