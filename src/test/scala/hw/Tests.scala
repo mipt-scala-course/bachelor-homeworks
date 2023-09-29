@@ -43,8 +43,8 @@ class Tests extends munit.FunSuite:
   test("I.3 summonInst"):
     case class Foo(x: Int)
     object Foo:
-     given Loggable[Foo] with
-       override def jsonLog(a: Foo): Json = Json.Null
+      given Loggable[Foo] with
+        override def jsonLog(a: Foo): Json = Json.Null
 
     val insts = Loggable.summonInst[(String, Int, Foo)]
     assertEquals(insts, List(summon[Loggable[String]], summon[Loggable[Int]], Foo.given_Loggable_Foo), insts)
@@ -72,8 +72,6 @@ class Tests extends munit.FunSuite:
           "token" -> a.token.map(_ => '*').asJson,
           "hash" -> a.hash.asJson,
         )
-
-
     case class User(name: String, tokens: List[Token]) derives Loggable
 
     val result = summon[Loggable[User]].jsonLog(User("Vasiliy", List(Token("private_key", 42), Token("public_key", 13))))
@@ -118,12 +116,7 @@ class Tests extends munit.FunSuite:
 
     case class KooB(y: Boolean, z: List[String]) extends Koo derives Loggable
 
-    val inst2 = Loggable.logSum[Koo](
-      summonInline[Mirror.SumOf[Koo]],
-      List("KooI" -> summon[Loggable[KooI]], "KooB" -> summon[Loggable[KooB]])
-    )
-
-    val result = inst2.jsonLog(KooI(42))
+    val result = summon[Loggable[Koo]].jsonLog(KooI(42))
     val expected = Json.obj(
       "KooI" -> 42.asJson
     )
@@ -156,9 +149,9 @@ class Tests extends munit.FunSuite:
       given Loggable[KooB] with
         override def jsonLog(a: Koo.KooB): Json = Json.Null
 
-    val result1 = Loggable.summonChild[Koo.KooI, Koo].jsonLog(Koo.KooI(42))
-    val expected1 = Json.obj("x" -> 42.asJson)
+    val result1 = summon[Loggable[Koo]].jsonLog(Koo.KooI(42))
+    val expected1 = Json.obj("KooI" -> Json.obj("x" -> 42.asJson))
     assertEquals(result1, expected1, result1)
 
-    val result2 = Loggable.summonChild[Koo.KooB, Koo].jsonLog(Koo.KooB(true))
-    assertEquals(result2, Json.Null, result2)
+    val result2 = summon[Loggable[Koo]].jsonLog(Koo.KooB(true))
+    assertEquals(result2, Json.obj("KooB" -> Json.Null), result2)
