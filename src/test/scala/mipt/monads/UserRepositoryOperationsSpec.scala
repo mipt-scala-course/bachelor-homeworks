@@ -124,15 +124,13 @@ class UserRepositoryOperationsSpec extends AnyFlatSpec with Matchers:
   }
 
   it should "correctly create a Community" in {
+    val f: User => (UserName, Age) = u => (u.name, u.age)
     UserRepository.Operations
       .createCommunity[Try](
-        List(
-          communicativeUser1.name -> communicativeUser1.age,
-          communicativeUser2.name -> communicativeUser2.age,
-          communicativeUser3.name -> communicativeUser3.age
-        )
+        List(communicativeUser1, communicativeUser2, communicativeUser3).map(f)
       )
       .map(_.toSet)
-      .apply(SyncRepository.empty) shouldBe Success(Set(communicativeUser1, communicativeUser2, communicativeUser3))
+      .apply(SyncRepository.empty)
+      .map(_.map(f)) shouldBe Success(Set(communicativeUser1, communicativeUser2, communicativeUser3).map(f))
 
   }
