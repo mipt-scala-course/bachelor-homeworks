@@ -8,7 +8,9 @@ import scala.util.{Success, Try}
 
 class Tests extends AnyFlatSpec with Matchers:
   def logEmbed(debug: Vector[String], info: Vector[String], error: Vector[String]): LogEmbed[Try, Unit] =
-    LogEmbed(WriterT(WriterT(WriterT(Success((debug.map(Debug.apply), (info.map(Info.apply), (error.map(Error.apply), ()))))))))
+    LogEmbed(
+      WriterT(WriterT(WriterT(Success((debug.map(Debug.apply), (info.map(Info.apply), (error.map(Error.apply), ())))))))
+    )
 
   it should "info log" in {
     val logger = Logger[Try]()
