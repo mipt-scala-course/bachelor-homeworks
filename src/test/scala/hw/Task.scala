@@ -17,10 +17,9 @@ class Tests extends munit.FunSuite:
     (1 to size).foldLeft {
       val init = genA
       (Leaf(init), Leaf(f(init)))
-    } {
-      case ((accA, accB), _) =>
-        val next = genA
-        (Node(next, NonEmptyList.one(accA)), Node(f(next), NonEmptyList.one(accB)))
+    } { case ((accA, accB), _) =>
+      val next = genA
+      (Node(next, NonEmptyList.one(accA)), Node(f(next), NonEmptyList.one(accB)))
     }
 
   def equal[A](x: Tree[A], y: Tree[A]): Eval[Option[String]] =
@@ -31,20 +30,19 @@ class Tests extends munit.FunSuite:
         )
       case (Node(l, tsL), Node(r, tsR)) =>
         if (l != r) Eval.now(Some(s"([N] $l != $r)"))
-        else if (tsL.length != tsR.length) Eval.now(Some(s"([N] value $l, different shapes: ${tsL.length} != ${tsR.length})"))
-        else Eval.defer(
-          tsL.zip(tsR).traverse(
-            (tL, tR) =>
-              equal(tL, tR)
-          ).map { res =>
-            val errs = res.toList.flatten
-            errs.headOption.map(_ => errs.mkString)
-          }
-        )
+        else if (tsL.length != tsR.length)
+          Eval.now(Some(s"([N] value $l, different shapes: ${tsL.length} != ${tsR.length})"))
+        else
+          Eval.defer(
+            tsL.zip(tsR).traverse((tL, tR) => equal(tL, tR)).map { res =>
+              val errs = res.toList.flatten
+              errs.headOption.map(_ => errs.mkString)
+            }
+          )
       case (_, _) => Eval.now(Some("different shapes"))
 
   test("I. 1. map for tree is stack-friendly"):
-    val f = (x: Int) => x % 7
+    val f        = (x: Int) => x % 7
     val (t1, t2) = genListTree(Random.between(1, 100), f, 500000)
     assertEquals(
       equal(t1.map(f), t2).value,
@@ -63,7 +61,7 @@ class Tests extends munit.FunSuite:
     (Node(genA, ts), res)
 
   test("I. 2. reduce left leaf for tree is stack-friendly"):
-    val f = (x: Int, y: Int) => (x - y) % 19
+    val f           = (x: Int, y: Int) => (x - y) % 19
     val (tree, res) = genOneFatNodeTree(Random.between(1, 100), f, 10000, 100)
 
     assertEquals(reduceLeftLeafs(tree, f), res)
@@ -75,14 +73,13 @@ class Tests extends munit.FunSuite:
 
   def gen(): T =
     val size = Random.between(1, 100)
-    (1 to size).foldLeft(Group.lift(1)) {
-      case (acc, _) =>
-        val add = Group.lift(Random.between(1, 10))
-        val addInv =
-          if (Random.nextBoolean) add
-          else g.invert(add)
+    (1 to size).foldLeft(Group.lift(1)) { case (acc, _) =>
+      val add = Group.lift(Random.between(1, 10))
+      val addInv =
+        if (Random.nextBoolean) add
+        else g.invert(add)
 
-        g.combine(acc, addInv)
+      g.combine(acc, addInv)
     }
 
   test("II. Free group laws: empty element is empty"):
@@ -108,4 +105,3 @@ class Tests extends munit.FunSuite:
       assertEquals(g.combine(g.invert(x), x), zero)
       assertEquals(g.combine(x, g.invert(x)), zero)
     }
-

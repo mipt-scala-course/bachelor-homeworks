@@ -99,15 +99,15 @@ object Group:
   /**
    * II. 1. Реализуйте тип данных, соответствующий свободной группе
    */
-  type Free[A] //= ???
+  type Free[A] // = ???
 
   /**
    * II.2 Реализуйте инстанс группы для свободной группы
    */
   given [A]: Group[Free[A]] with
-    def empty: Free[A] = ???
+    def empty: Free[A]                           = ???
     def combine(x: Free[A], y: Free[A]): Free[A] = ???
-    def invert(x: Free[A]): Free[A] = ???
+    def invert(x: Free[A]): Free[A]              = ???
 
   /**
    * II.3 Реализуйте функцию, поднимающую эелемент множества в элемент свободной группы
