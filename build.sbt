@@ -2,7 +2,7 @@ import _root_.sbt.Keys._
 import wartremover.Wart
 import wartremover.Wart._
 
-name := "magistracy-homeworks"
+name := "bachelor-homeworks"
 version := "0.1"
 scalaVersion := "3.2.1"
 
